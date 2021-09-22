@@ -1,0 +1,142 @@
+Sub Stock_Analysis()
+           
+'for loop for all sheets
+    Dim allsheets As Worksheet
+
+    
+    For Each allsheets In Worksheets
+
+        'Summary table lables
+        allsheets.Cells(1, 9).Value = "Ticker"
+        allsheets.Cells(1, 10).Value = "Yearly_Change"
+        allsheets.Cells(1, 11).Value = "Percent_change"
+        allsheets.Cells(1, 12).Value = "Total_Stock Volume"
+
+        ' defining variables
+        Dim ticker_symbol As String
+        Dim Total_volume As Double
+        Dim rowcount As Long
+        Dim Open_value As Double
+        Dim close_value As Double
+        Dim year_change As Double
+        Dim Percent_change As Double
+        Dim i As Long
+        
+        'initialising variables
+        
+        Total_volume = 0
+        rowcount = 2
+        Open_value = 0
+        close_value = 0
+        year_change = 0
+        Percent_change = 0
+
+        'finding last row
+        Dim lastrow As Long
+        lastrow = allsheets.Cells(Rows.Count, 1).End(xlUp).Row
+
+        'main loop for all calculations
+        For i = 2 To lastrow
+            
+            If allsheets.Cells(i, 1).Value <> allsheets.Cells(i - 1, 1).Value Then
+             Open_value = allsheets.Cells(i, 3).Value
+            End If
+            
+            Total_volume = Total_volume + allsheets.Cells(i, 7)
+            If allsheets.Cells(i, 1).Value <> allsheets.Cells(i + 1, 1).Value Then
+                allsheets.Cells(rowcount, 9).Value = allsheets.Cells(i, 1).Value
+                allsheets.Cells(rowcount, 12).Value = Total_volume
+                close_value = allsheets.Cells(i, 6).Value
+                year_change = close_value - Open_value
+                allsheets.Cells(rowcount, 10).Value = year_change
+                If year_change >= 0 Then
+                    allsheets.Cells(rowcount, 10).Interior.ColorIndex = 4
+                Else
+                    allsheets.Cells(rowcount, 10).Interior.ColorIndex = 3
+                End If
+                'Percentage calculation
+                If Open_value = 0 And close_value = 0 Then
+                    
+                    Percent_change = 0
+                    allsheets.Cells(rowcount, 11).Value = Percent_change
+                    allsheets.Cells(rowcount, 11).NumberFormat = "0.00%"
+                ElseIf Open_value = 0 Then
+                    
+                    Dim Percent_change_NA As String
+                    Percent_change_NA = "New Stock"
+                    allsheets.Cells(rowcount, 11).Value = Percent_change
+                Else
+                    Percent_change = year_change / Open_value
+                    allsheets.Cells(rowcount, 11).Value = Percent_change
+                    allsheets.Cells(rowcount, 11).NumberFormat = "0.00%"
+                End If
+
+               
+                rowcount = rowcount + 1
+                Total_volume = 0
+                Open_value = 0
+                close_value = 0
+                year_change = 0
+                Percent_change = 0
+                
+            End If
+        Next i
+ 'lables for greatest increase and decrease
+        
+        allsheets.Cells(2, 15).Value = "Greatest % Increase"
+        allsheets.Cells(3, 15).Value = "Greatest % Decrease"
+        allsheets.Cells(4, 15).Value = "Greatest Total Volume"
+        allsheets.Cells(1, 16).Value = "Ticker"
+        allsheets.Cells(1, 17).Value = "Value"
+
+        
+        lastrow = allsheets.Cells(Rows.Count, 9).End(xlUp).Row
+
+        'defining variables
+        Dim best_stock As String
+        Dim best_value As Double
+        Dim worst_stock As String
+        Dim worst_value As Double
+        Dim most_vol_stock As String
+        Dim most_vol_value As Double
+        
+        'Initialising variables
+        best_value = allsheets.Cells(2, 11).Value
+        worst_value = allsheets.Cells(2, 11).Value
+        most_vol_value = allsheets.Cells(2, 12).Value
+        
+        
+'loop to find greatest increase and decrease
+        For j = 2 To lastrow
+                If allsheets.Cells(j, 11).Value > best_value Then
+                best_value = allsheets.Cells(j, 11).Value
+                best_stock = allsheets.Cells(j, 9).Value
+                End If
+                If allsheets.Cells(j, 11).Value < worst_value Then
+                worst_value = allsheets.Cells(j, 11).Value
+                worst_stock = allsheets.Cells(j, 9).Value
+                End If
+                If allsheets.Cells(j, 12).Value > most_vol_value Then
+                most_vol_value = allsheets.Cells(j, 12).Value
+                most_vol_stock = allsheets.Cells(j, 9).Value
+                End If
+
+
+            
+        Next j
+
+        
+        allsheets.Cells(2, 16).Value = best_stock
+        allsheets.Cells(2, 17).Value = best_value
+        allsheets.Cells(2, 17).NumberFormat = "0.00%"
+        allsheets.Cells(3, 16).Value = worst_stock
+        allsheets.Cells(3, 17).Value = worst_value
+        allsheets.Cells(3, 17).NumberFormat = "0.00%"
+        allsheets.Cells(4, 16).Value = most_vol_stock
+        allsheets.Cells(4, 17).Value = most_vol_value
+
+        
+
+    Next allsheets
+
+End Sub
